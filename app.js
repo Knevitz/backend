@@ -6,6 +6,7 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const sequelize = require("./config/database");
 
+// Rotas
 const configRoutes = require("./routes/configRoutes");
 const catalogoRoutes = require("./routes/catalogo");
 const produtoRoutes = require("./routes/produtos");
@@ -16,10 +17,12 @@ const cotacaoRoutes = require("./routes/cotacoes");
 
 const app = express();
 
+// Origens permitidas via .env (separadas por vírgula)
 const ALLOWED_ORIGINS = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map((o) => o.trim())
+  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
   : ["http://localhost:3001", "http://localhost:3002"];
 
+// CORS dinâmico
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -33,6 +36,7 @@ app.use(
   })
 );
 
+// Helmet com Content-Security-Policy correto
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -48,13 +52,25 @@ app.use(
         upgradeInsecureRequests: [],
       },
     },
-    crossOriginEmbedderPolicy: false,
+    crossOriginEmbedderPolicy: false, // necessário para evitar bloqueios com imagens
   })
 );
 
+// Rate limiting para segurança
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
+
+// Parser JSON e formulários
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Servir imagens da pasta /uploads com headers CORS e CORP
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"), {
@@ -70,15 +86,6 @@ app.use(
   })
 );
 
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
-);
-
 // Rotas da API
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/cotacoes", cotacaoRoutes);
@@ -88,10 +95,12 @@ app.use("/api/catalogo", catalogoRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/config", configRoutes);
 
+// Teste da API
 app.get("/", (req, res) => {
   res.send("API da Eletrodinâmica está rodando");
 });
 
+// Conexão com o banco
 sequelize
   .authenticate()
   .then(() => console.log("Banco de dados conectado com sucesso"))
