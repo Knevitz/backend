@@ -51,9 +51,6 @@ exports.enviarCotacao = async (req, res) => {
   <p><strong>Data:</strong> ${new Date(
     novaCotacao.dataEnvio
   ).toLocaleDateString("pt-BR")}</p>
-  <p><strong>Hora:</strong> ${new Date(
-    novaCotacao.dataEnvio
-  ).toLocaleTimeString("pt-BR")}</p>
   <br/>
   <h3>Itens:</h3>
   <table border="1" cellpadding="6" cellspacing="0">
