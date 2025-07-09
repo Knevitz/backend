@@ -53,7 +53,6 @@ exports.enviarCotacao = async (req, res) => {
   <table border="1" cellpadding="6" cellspacing="0">
     <thead>
       <tr>
-        <th>Imagem</th>
         <th>Nome</th>
         <th>Código</th>
         <th>Quantidade</th>
@@ -64,7 +63,6 @@ exports.enviarCotacao = async (req, res) => {
         .map(
           (item) => `
             <tr>
-              <td><img src="${process.env.API_URL}uploads/${item.imagem}" width="100"/></td>
               <td>${item.nome}</td>
               <td>${item.codigo}</td>
               <td>${item.quantidade}</td>
