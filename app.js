@@ -6,7 +6,6 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 const sequelize = require("./config/database");
 
-// Rotas
 const configRoutes = require("./routes/configRoutes");
 const catalogoRoutes = require("./routes/catalogo");
 const produtoRoutes = require("./routes/produtos");
@@ -17,12 +16,10 @@ const cotacaoRoutes = require("./routes/cotacoes");
 
 const app = express();
 
-// Origens permitidas via .env (separadas por vírgula)
 const ALLOWED_ORIGINS = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
+  ? process.env.FRONTEND_URL.split(",").map((o) => o.trim())
   : ["http://localhost:3001", "http://localhost:3002"];
 
-// CORS dinâmico
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -36,7 +33,6 @@ app.use(
   })
 );
 
-// Helmet com Content-Security-Policy correto
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -52,30 +48,18 @@ app.use(
         upgradeInsecureRequests: [],
       },
     },
-    crossOriginEmbedderPolicy: false, // necessário para evitar bloqueios com imagens
+    crossOriginEmbedderPolicy: false,
   })
 );
 
-// Rate limiting para segurança
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
-);
-
-// Parser JSON e formulários
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir imagens da pasta /uploads com headers CORS e CORP
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"), {
     setHeaders: (res) => {
-      res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader(
         "Access-Control-Allow-Headers",
@@ -83,6 +67,15 @@ app.use(
       );
       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     },
+  })
+);
+
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
   })
 );
 
@@ -95,12 +88,10 @@ app.use("/api/catalogo", catalogoRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/config", configRoutes);
 
-// Teste da API
 app.get("/", (req, res) => {
   res.send("API da Eletrodinâmica está rodando");
 });
 
-// Conexão com o banco
 sequelize
   .authenticate()
   .then(() => console.log("Banco de dados conectado com sucesso"))
