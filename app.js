@@ -20,7 +20,7 @@ const app = express();
 // URLs permitidas
 const ALLOWED_ORIGINS = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(",").map((o) => o.trim())
-  : ["http://localhost:3001", "http://localhost:3002"];
+  : ["https://loja-olive.vercel.app", "https://site-eight-ruby.vercel.app"];
 
 // CORS
 app.use(
